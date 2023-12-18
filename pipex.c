@@ -7,22 +7,37 @@ o child fica com id de 0 o pai com um n posi e -1 em caso de erro
 */
 /*dup2 ajuda a redirecionar ou substituir o fd default por outro
 */
-/*int	main(int ac, char **av, char **envp)
+char	**get_path(char **envp)
 {
-	if (ac != 3)
-		return (0);
-  execve("/bin/ls", av, envp);
-	return (0);
-}*/
-#include <stdio.h>
-#include <errno.h>
+	int		i;
+	char	*str;
+	char	**newstr;
 
-int main() {
-    FILE *file = fopen("nonexistent.txt", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-    }
-    return 0;
+	i = 0;
+	if (!envp[i])
+		return (NULL);
+	while (envp[i])
+	{
+		if (!strncmp(envp[i], "PATH=", 5))
+			str = ft_strdup(envp[i]);
+		i++;
+	}
+	newstr = ft_split(str, ':');
+	return (newstr);
+}
+
+int	main(int ac, char **av, char **envp)
+{
+	(void)av;
+	(void)ac;
+	int i = 0;
+	char **mlc = get_path(envp);
+	while (mlc[i])
+	{
+		ft_printf("%s\n", mlc[i]);
+		i++;
+	}
+	return (0);
 }
 
 	//end[0] = read parent cmd2 fd0 é o stdin (fd0 ledo fd1 o output do cmd1 e outfile e o stdout)
