@@ -7,6 +7,10 @@ o child fica com id de 0 o pai com um n posi e -1 em caso de erro
 */
 /*dup2 ajuda a redirecionar ou substituir o fd default por outro
 */
+
+/*
+Checks the path on the envp and splits it based on the ":"
+*/
 char	**get_path(char **envp)
 {
 	int		i;
@@ -25,18 +29,38 @@ char	**get_path(char **envp)
 	newstr = ft_split(str, ':');
 	return (newstr);
 }
-
-int	main(int ac, char **av, char **envp)
+/*
+Add the command1 recieved a join with the path
+*/
+void	ft_add(char **envp, char **ag)
 {
-	(void)av;
-	(void)ac;
-	int i = 0;
-	char **mlc = get_path(envp);
-	while (mlc[i])
+	int	i;
+	char	*cmd1;
+	char	**str;
+	char	**args;
+	char	*tmp;
+
+	i = 0;
+	str = get_path(envp);
+	args = ft_split(ag[2], ' ');
+	if (!str[i])
+		return ;
+	while(str[i])
 	{
-		ft_printf("%s\n", mlc[i]);
+		tmp = ft_strjoin(str[i], "/");
+		cmd1 = ft_strjoin(tmp, ag[2]);
+		//ft_printf("%s\n", cmd1);
+		execve(cmd1, args, envp);
+		//perror("Error");
+		free(tmp);
 		i++;
 	}
+}
+int	main(int ac, char **av, char **envp)
+{
+	if (ac != 5)
+		return (0);
+	ft_add(envp, av);
 	return (0);
 }
 
