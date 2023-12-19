@@ -7,6 +7,10 @@ o child fica com id de 0 o pai com um n posi e -1 em caso de erro
 */
 /*dup2 ajuda a redirecionar ou substituir o fd default por outro
 */
+
+/*
+Checks the path on the envp and splits it based on the ":"
+*/
 char	**get_path(char **envp)
 {
 	int		i;
@@ -19,24 +23,45 @@ char	**get_path(char **envp)
 	while (envp[i])
 	{
 		if (!strncmp(envp[i], "PATH=", 5))
-			str = ft_strdup(envp[i]);
+			str= ft_substr(envp[i], 5, ft_strlen(envp[i]));
 		i++;
 	}
 	newstr = ft_split(str, ':');
+	free(str);
 	return (newstr);
 }
+/*
+Add the command1 recieved a join with the path
+*/
+void	ft_add(char **envp, char **ag)
+{
+	char	*cmd1;
+	char	**str;
+	char	**args;
+	char	*tmp;
+
+	str = get_path(envp);
+	args = ft_split(ag[2], ' ');
+	if (!*str)
+		return ;
+	while(*str)
+	{
+		tmp = ft_strjoin(*str, "/");
+		cmd1 = ft_strjoin(tmp, args[0]);
+		//ft_printf("%s\n", cmd1);
+		execve(cmd1, args, envp);
+		//perror("Error");
+		free(tmp);
+		str++;
+	}
+}
+
 
 int	main(int ac, char **av, char **envp)
 {
-	(void)av;
-	(void)ac;
-	int i = 0;
-	char **mlc = get_path(envp);
-	while (mlc[i])
-	{
-		ft_printf("%s\n", mlc[i]);
-		i++;
-	}
+	if (ac != 5)
+		return (0);
+	ft_add(envp, av);
 	return (0);
 }
 

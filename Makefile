@@ -5,7 +5,7 @@ HEADER = pipex.h
 FT_PRINTFDIR = includes/PRINTF/libftprintf.a
 LIBFTDIR = includes/LIBFT/libft.a
 CC = cc
-CFLAGS = -Wall -Werror -Wextra #-fsanitize=address -g3
+CFLAGS = -Wall -Werror -Wextra -g3
 COMPILER = $(CC) $(CFLAGS)
 RM = rm -f
 OBJS = *.o 
