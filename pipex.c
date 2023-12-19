@@ -35,11 +35,16 @@ Add the command1 recieved a join with the path
 */
 void	ft_add(char **envp, char **ag)
 {
+<<<<<<< HEAD
+=======
+	int	i;
+>>>>>>> f3cd73cd19634b338191c2c2ab6ddc2c2c6b8a21
 	char	*cmd1;
 	char	**str;
 	char	**args;
 	char	*tmp;
 
+<<<<<<< HEAD
 	str = get_path(envp);
 	args = ft_split(ag[2], ' ');
 	if (!*str)
@@ -48,15 +53,32 @@ void	ft_add(char **envp, char **ag)
 	{
 		tmp = ft_strjoin(*str, "/");
 		cmd1 = ft_strjoin(tmp, args[0]);
+=======
+	i = 0;
+	str = get_path(envp);
+	args = ft_split(ag[2], ' ');
+	if (!str[i])
+		return ;
+	while(str[i])
+	{
+		tmp = ft_strjoin(str[i], "/");
+		cmd1 = ft_strjoin(tmp, ag[2]);
+>>>>>>> f3cd73cd19634b338191c2c2ab6ddc2c2c6b8a21
 		//ft_printf("%s\n", cmd1);
 		execve(cmd1, args, envp);
 		//perror("Error");
 		free(tmp);
+<<<<<<< HEAD
 		str++;
 	}
 }
 
 
+=======
+		i++;
+	}
+}
+>>>>>>> f3cd73cd19634b338191c2c2ab6ddc2c2c6b8a21
 int	main(int ac, char **av, char **envp)
 {
 	if (ac != 5)
