@@ -6,7 +6,7 @@
 /*   By: bjorge-m <bjorge-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:41:33 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/20 19:23:02 by bjorge-m         ###   ########.fr       */
+/*   Updated: 2023/12/20 19:30:22 by bjorge-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,29 +67,6 @@ void	ft_add(char **envp, char *ag)
 	exit(127);
 }
 
-void	ft_parent(char **envp, char *av3, int fdw, int *end)
-{
-	int		status;
-	
-	waitpid(-1, &status, 0);
-	dup2(fdw, 1);
-	dup2(end[0], 0);
-	close(end[1]);
-	close(end[0]);
-	close(fdw);
-	ft_add(envp, av3);
-}
-
-void	ft_child(char **envp, char *av2, int *end, int fdr)
-{
-	dup2(end[1], 1);
-	close(end[0]);
-	close(fdr);
-	close(end[1]);
-	ft_add(envp, av2);
-	perror("pipex: fizzbuzz");
-	exit(EXIT_FAILURE);
-}
 /*
 Checks the path on the envp and splits it based on the ":"
 */
@@ -116,6 +93,7 @@ int	main(int ac, char **av, char **envp)
 {
 	int		fdw;
 	int		fdr;
+
 	if (ac != 5)
 		return (0);
 	if (av[1][0] == '\0' || av[2][0] == '\0' || 
@@ -125,7 +103,7 @@ int	main(int ac, char **av, char **envp)
 		return (0);
 	}
 	fdr = open(av[1], O_RDONLY);
-	if(fdr == -1)
+	if (fdr == -1)
 	{
 		perror("pipex");
 		exit(1);

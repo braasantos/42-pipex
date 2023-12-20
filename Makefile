@@ -1,5 +1,5 @@
 NAME = pipex
-SRCS = pipex.c
+SRCS = pipex.c pipex_utils.c
 HEADER = pipex.h
 LIBFTDIR = includes/LIBFT/libft.a
 PRINTFDIR = includes/PRINTF/libftprintf.a
