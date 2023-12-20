@@ -12,7 +12,9 @@
 # include "ft_printf.h"
 
 /*Functions*/
-
+char **get_path(char **envp);
+void	ft_add(char **envp, char *ag);
+void	pipex(char **envp, char **av, int fdw, int fdr);
 /*Utils*/
 
 #endif
