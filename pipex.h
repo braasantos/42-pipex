@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bjorge-m <bjorge-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:44:49 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/20 19:22:47 by bjorge-m         ###   ########.fr       */
+/*   Updated: 2023/12/20 22:03:39 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include <sys/wait.h>
 # include <errno.h>
 # include "libft.h"
-# include "ft_printf.h"
+# include "printf.h"
 
 /*Functions*/
 void	ft_add(char **envp, char *ag);

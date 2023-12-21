@@ -11,7 +11,7 @@ OBJS = *.o
 
 all: $(NAME)
 
-$(NAME): $(OBJS) $(LIBFTDIR) $(PRINTFDIR)
+$(NAME): $(OBJS) $(LIBFTDIR) $(PRINTFDIR) $(HEADER)
 	@echo "Created objs"
 	$(COMPILER) -o $(NAME) $(OBJS) $(LIBFTDIR) $(PRINTFDIR) -I includes/LIBFT -I includes/PRINTF
 
