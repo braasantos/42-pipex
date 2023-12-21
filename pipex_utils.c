@@ -3,36 +3,56 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
+/*   By: bjorge-m <bjorge-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 19:31:08 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/21 14:03:41 by braasantos       ###   ########.fr       */
+/*   Updated: 2023/12/21 20:33:59 by bjorge-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_parent(char **envp, char *av3, int fdw, int *end)
+void	ft_free_str(char **str)
 {
-	int		status;
+	int		i;
 
-	waitpid(-1, &status, 0);
-	dup2(fdw, 1);
-	dup2(end[0], 0);
-	close(end[1]);
-	close(end[0]);
-	close(fdw);
-	ft_add(envp, av3);
-	exit(127);
+	i = 0;
+	while (str[i])
+	{
+		free(str[i]);
+		i++;
+	}
+	free(str);
 }
 
-void	ft_child(char **envp, char *av2, int *end, int fdr)
+void	ft_child2(char **envp, char *cmd1, int fdw, int *end, char *av3)
 {
-	dup2(end[1], 1);
-	close(end[0]);
-	close(fdr);
+	char	**args;
+
+	args = ft_split(av3, ' ');
 	close(end[1]);
-	ft_add(envp, av2);
-	perror("Error");
-	exit(2);
+	dup2(fdw, 1);
+	dup2(end[0], 0);
+	close(end[0]);
+	if (execve(cmd1, args, envp) == -1)
+	{
+		ft_free_str(args);
+		exit(127);
+	}
+}
+
+void	ft_child1(char **envp, char *cmd1, int *end, int fdr, char *av2)
+{
+	char	**args;
+
+	args = ft_split(av2, ' ');
+	close(end[0]);
+	dup2(fdr, 0);
+	dup2(end[1], 1);
+	close(end[1]);
+	if (execve(cmd1, args, envp) == -1)
+	{
+		ft_free_str(args);
+		exit(2);
+	}
 }

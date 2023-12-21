@@ -7,13 +7,13 @@ CC = cc
 CFLAGS = -Wall -Werror -Wextra #-fsanitize=address -g3
 COMPILER = $(CC) $(CFLAGS)
 RM = rm -f
-OBJS = *.o 
+OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFTDIR) $(PRINTFDIR) $(HEADER)
 	@echo "Created objs"
-	$(COMPILER) -o $(NAME) $(OBJS) $(LIBFTDIR) $(PRINTFDIR) -I includes/LIBFT -I includes/PRINTF
+	$(COMPILER) $(OBJS) $(LIBFTDIR) $(PRINTFDIR) -I includes/LIBFT -I includes/PRINTF -o $(NAME)
 
 $(LIBFTDIR):
 	$(MAKE) -C includes/LIBFT
@@ -21,9 +21,11 @@ $(LIBFTDIR):
 $(PRINTFDIR):
 	$(MAKE) -C includes/PRINTF
 
-$(OBJS): $(SRCS)
-	$(COMPILER) -c $(SRCS) -I includes/LIBFT -I includes/PRINTF
+%.o: %.c
+	$(COMPILER) -I includes/LIBFT -I includes/PRINTF -c $< -o $@ 
 
+debug:
+	cc $(CFLAGS) -g -I includes/LIBFT -I includes/PRINTF *.c includes/LIBFT/*.c
 # cleans the object files
 clean:
 	$(RM) $(OBJS)
@@ -41,4 +43,4 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-.SILENT:
+#.SILENT:
