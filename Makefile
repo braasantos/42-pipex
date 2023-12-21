@@ -1,5 +1,5 @@
 NAME = pipex
-SRCS = pipex.c pipex_utils.c
+SRCS = pipex.c pipex_utils.c pipex_utils_2.c
 HEADER = pipex.h
 LIBFTDIR = includes/LIBFT/libft.a
 PRINTFDIR = includes/PRINTF/libftprintf.a
@@ -24,8 +24,8 @@ $(PRINTFDIR):
 %.o: %.c
 	$(COMPILER) -I includes/LIBFT -I includes/PRINTF -c $< -o $@ 
 
-debug:
-	cc $(CFLAGS) -g -I includes/LIBFT -I includes/PRINTF *.c includes/LIBFT/*.c
+#debug:
+#	cc $(CFLAGS) -g -I includes/LIBFT -I includes/PRINTF *.c includes/LIBFT/*.c
 # cleans the object files
 clean:
 	$(RM) $(OBJS)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bjorge-m <bjorge-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:41:33 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/21 20:32:26 by bjorge-m         ###   ########.fr       */
+/*   Updated: 2023/12/21 23:38:48 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ char	*ft_add(char **envp, char *ag)
 Checks the path on the envp and splits it based on the ":"
 */
 
-void	pipex(char **envp, char **av, int fdw, int fdr)
+void	pipex(char **envp, char **av, int *fd)
 {
 	int		end[2];
 	pid_t	child;
@@ -82,64 +82,61 @@ void	pipex(char **envp, char **av, int fdw, int fdr)
 	char	*cmd1;
 	char	*cmd2;
 
-	cmd1 = ft_add(envp, av[2]);
-	cmd2 = ft_add(envp, av[3]);
 	if (pipe(end) == -1)
 		exit(1);
 	child = fork();
 	if (child == 0)
-		ft_child1(envp, cmd1, end, fdr, av[2]);
+	{
+		ft_close1(end, fd);
+		ft_child1(envp, cmd1 = ft_add(envp, av[2]), av[2]);
+	}
 	else
 	{
 		child2 = fork();
 		if (child2 == 0)
-			ft_child2(envp, cmd2, fdw, end, av[3]);
-		else 
 		{
-			waitpid(-1, NULL, 0);
-			free(cmd1);
-			free(cmd2);
+			ft_close2(end, fd);
+			ft_child2(envp, cmd2 = ft_add(envp, av[3]), av[3]);
 		}
+		else
+			ft_free_cmd(cmd1 = ft_add(envp, av[2]), cmd2 = ft_add(envp, av[3]));
 	}
 }
-
-void	ft_checkfd(int fdr, char *av1, int fdw)
+void	ft_checkfd(int *fd, char *av1)
 {
-	if (fdr == -1)
+	if (fd[0] == -1)
 	{
 		ft_putstr_fd(av1, 2);
 		ft_putstr_fd(strerror(errno), 2);
 		exit(0);
 	}
-	if (fdr < 0 || fdw < 0)
+	if (fd[0] < 0 || fd[1] < 0)
 	{
 		perror("Error");
-		close(fdw);
-		close(fdr);
+		close(fd[1]);
+		close(fd[0]);
 		exit(1);
 	}
 }
-
 int	main(int ac, char **av, char **envp)
 {
-	int		fdw;
-	int		fdr;
+	int		fd[2];
 
 	if (ac != 5 || !av[4][0])
 		return (1);
 	if (av[2][0] == '\0' || !av[1][0])
 		return (0);
-	fdr = open(av[1], O_RDONLY);
-	fdw = open(av[4], O_CREAT | O_RDWR | O_TRUNC, 0664);
-	ft_checkfd(fdr, av[1], fdw);
+	fd[0] = open(av[1], O_RDONLY);
+	fd[1] = open(av[4], O_CREAT | O_RDWR | O_TRUNC, 0664);
+	ft_checkfd(fd, av[1]);
 	if (access(av[1], R_OK) == -1)
 	{
-		close(fdr);
+		close(fd[0]);
 		perror("Error");
 		exit(0);
 	}
-	ft_checkfd(fdr, av[1], fdw);
-	pipex(envp, av, fdw, fdr);
+	ft_checkfd(fd, av[1]);
+	pipex(envp, av, fd);
 	return (0);
 }
 // end[0] = read parent cmd2 fd0 é o stdin (fd0 ledo
