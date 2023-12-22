@@ -6,7 +6,7 @@
 /*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:41:33 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/21 23:38:48 by braasantos       ###   ########.fr       */
+/*   Updated: 2023/12/22 22:25:28 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,9 @@ char	*ft_add(char **envp, char *ag)
 		free(cmd1);
 		i++;
 	}
-	return (ft_free_str(args), ft_free_str(str), NULL);
+	ft_free_str(args);
+	ft_free_str(str);
+	return (NULL);
 }
 /*
 Checks the path on the envp and splits it based on the ":"
@@ -102,15 +104,21 @@ void	pipex(char **envp, char **av, int *fd)
 			ft_free_cmd(cmd1 = ft_add(envp, av[2]), cmd2 = ft_add(envp, av[3]));
 	}
 }
+
 void	ft_checkfd(int *fd, char *av1)
 {
 	if (fd[0] == -1)
 	{
+		av1 = ft_strjoin(av1, ": ");
 		ft_putstr_fd(av1, 2);
 		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		free(av1);
+		close(fd[0]);
+		close(fd[1]);
 		exit(0);
 	}
-	if (fd[0] < 0 || fd[1] < 0)
+	if (fd[1] < 0)
 	{
 		perror("Error");
 		close(fd[1]);

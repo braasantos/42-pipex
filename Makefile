@@ -8,7 +8,6 @@ CFLAGS = -Wall -Werror -Wextra #-fsanitize=address -g3
 COMPILER = $(CC) $(CFLAGS)
 RM = rm -f
 OBJS = $(SRCS:.c=.o)
-
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFTDIR) $(PRINTFDIR) $(HEADER)

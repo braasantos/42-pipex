@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-void ft_free_cmd(char *cmd1, char *cmd2)
+void	ft_free_cmd(char *cmd1, char *cmd2)
 {
 	waitpid(-1, NULL, 0);
 	free(cmd1);
