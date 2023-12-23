@@ -1,60 +1,56 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_utils.c                                      :+:      :+:    :+:   */
+/*   pipex_bonus_utils.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 19:31:08 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/23 21:22:27 by braasantos       ###   ########.fr       */
+/*   Updated: 2023/12/23 12:43:58 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_free_cmd_og(char *cmd1, char *cmd2)
+void	ft_close2_bonus(t_pipex ppx)
 {
-	waitpid(-1, NULL, 0);
-	free(cmd1);
-	free(cmd2);
-}
-void	ft_close2_og(t_pipex ppx)
-{
+	dup2(ppx.end[0], STDIN_FILENO);
+	dup2(ppx.end[1], STDOUT_FILENO);
 	close(ppx.end[1]);
-	dup2(ppx.fd1, 1);
-	dup2(ppx.end[0], 0);
-	close(ppx.end[0]);
 }
-void	ft_child2_og(char **envp, char *cmd1, char *av3, t_pipex ppx)
+void	ft_closefinal_bonus(t_pipex ppx)
+{
+	dup2(ppx.end[0], STDIN_FILENO);
+	close(ppx.end[0]);
+	dup2(ppx.fd1, STDOUT_FILENO);
+	close(ppx.end[1]);
+}
+void	ft_child2_bonus(char **envp, char *av3, t_pipex ppx)
 {
 	char	**args;
 
 	args = ft_split(av3, ' ');
-	if (execve(cmd1, args, envp) == -1)
+	if (execve(ppx.cmd2, args, envp) == -1)
 	{
-		ft_free_str_og(args);
-		free(cmd1);
-		ft_close_and_exit1(ppx, av3);
-		exit(127);
+		ft_free_str_bonus(args);
+		exit(1);
 	}
 }
-void	ft_close1_og(t_pipex ppx)
+void	ft_close1_bonus(t_pipex ppx)
 {
 	close(ppx.end[0]);
-	dup2(ppx.fd0, 0);
-	dup2(ppx.end[1], 1);
+	dup2(ppx.fd0, STDIN_FILENO);
+	dup2(ppx.end[1], STDOUT_FILENO);
 	close(ppx.end[1]);
 }
-void	ft_child1_og(char **envp, char *cmd1, char *av2, t_pipex ppx)
+void	ft_child1_bonus(char **envp, char *av2, t_pipex ppx)
 {
 	char	**args;
 
 	args = ft_split(av2, ' ');
-	if (execve(cmd1, args, envp) == -1)
+	if (execve(ppx.cmd1, args, envp) == -1)
 	{
-		ft_free_str_og(args);
-		free(cmd1);
-		ft_close_and_exit1(ppx, av2);
-		exit(127);
+		ft_free_str_bonus(args);
+		exit(2);
 	}
 }
