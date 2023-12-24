@@ -6,13 +6,13 @@
 /*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:41:33 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/23 21:23:24 by braasantos       ###   ########.fr       */
+/*   Updated: 2023/12/24 16:16:05 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	**get_path_og(char **envp)
+char	**get_path_bonus(char **envp)
 {
 	int		i;
 	char	*str;
@@ -33,7 +33,21 @@ char	**get_path_og(char **envp)
 	free(str);
 	return (newstr);
 }
-char	*ft_add_og(char **envp, char *ag)
+
+void	ft_cmmd_notfound_bonus(char *av1, char *av2, t_pipex ppx)
+{
+	close(ppx.fd0);
+	close(ppx.fd1);
+	ft_putstr_fd(av1, 2);
+	ft_putstr_fd(": command not found\n", 2);
+	ft_putstr_fd(av2, 2);
+	ft_putstr_fd(": command not found\n", 2);
+	free(ppx.cmd1);
+	free(ppx.cmd2);
+	exit(127);
+}
+
+char	*ft_add_bonus(char **envp, char *ag)
 {
 	char	*cmd1;
 	char	**str;
@@ -42,7 +56,7 @@ char	*ft_add_og(char **envp, char *ag)
 	int		i;
 
 	i = 0;
-	str = get_path_og(envp);
+	str = get_path_bonus(envp);
 	args = ft_split(ag, ' ');
 	if (!*str)
 		return (NULL);
@@ -52,88 +66,51 @@ char	*ft_add_og(char **envp, char *ag)
 		cmd1 = ft_strjoin(tmp, args[0]);
 		free(tmp);
 		if (access(cmd1, X_OK) == 0)
-			return (ft_free_str_og(args), ft_free_str_og(str), cmd1);
+			return (ft_free_str_bonus(args), ft_free_str_bonus(str), cmd1);
 		free(cmd1);
 		i++;
 	}
-	ft_free_str_og(args);
-	ft_free_str_og(str);
-	return (NULL);
+	return (ft_free_str_bonus(args), ft_free_str_bonus(str), NULL);
 }
-void	pipex_og(char **envp, char **av, t_pipex ppx)
-{
-	pid_t	child;
-	pid_t	child2;
-	char	*cmd1;
-	char	*cmd2;
 
-	if (pipe(ppx.end) == -1)
-		exit(1);
-	child = fork();
-	if (child == 0)
-	{
-		ft_close1_og(ppx);
-		ft_child1_og(envp, (cmd1 = cmd_is_ok(envp, av, 2)), av[2], ppx);
-	}
-	else
-	{
-		child2 = fork();
-		if (child2 == 0)
-		{
-			ft_close2_og(ppx);
-			ft_child2_og(envp, (cmd2 =  cmd_is_ok(envp, av, 3)), av[3], ppx);
-		}
-		else
-			ft_free_cmd_og(cmd1 = ft_add_og(envp, av[2]), cmd2 = ft_add_og(envp, av[3]));
-	}
-}
-void	ft_checkfd_og(t_pipex ppx, char **av)
+void	pipex_bonus(char **envp, char **av, t_pipex ppx)
 {
-	if (ppx.fd0 == -1 || access(av[1], R_OK) == -1)
-  {
-		av[1] = ft_strjoin(av[1], ": ");
-        ft_putstr_fd(av[1], 2);
-        ft_putstr_fd(strerror(errno), 2);
-        ft_putstr_fd("\n", 2);
-        free(av[1]);
-        close(ppx.fd0);
-        close(ppx.fd1);
-        exit(0); //0
-    }
-    if (ppx.fd1 < 0)
-    {
-			av[4] = ft_strjoin(av[4], ": ");
-        ft_putstr_fd(av[4], 2);
-        ft_putstr_fd(strerror(errno), 2);
-        ft_putstr_fd("\n", 2);
-        free(av[4]);
-        close(ppx.fd0);
-        close(ppx.fd1);
-        exit(1); //1
-    }
+	int		i;
+	int		j;
+
+	i = 2;
+	j = 1;
+	while (j < ppx.ac)
+	{
+		ppx.cmd1 = ft_add_bonus(envp, av[i]);
+		ppx.cmd2 = ft_add_bonus(envp, av[i + 1]);
+		if (!ppx.cmd1 && !ppx.cmd2)
+			ft_cmmd_notfound_bonus(av[i], av[i + 1], ppx);
+		if (pipe(ppx.end) == -1)
+			exit(EXIT_FAILURE);
+		ppx.child1 = fork();
+		if (ppx.child1 == 0)
+			first_c_bonus(av[i], ppx, envp);
+		else
+			second_c_bonus(av[i + 1], envp, j, ppx);
+		i++;
+		j++;
+	}
 }
+
 int	main(int ac, char **av, char **envp)
 {
-	t_pipex ppx;
-	
+	t_pipex	ppx;
+
+	ppx.ac = ac - 3;
 	if (ac != 5 || !av[4][0])
-		return (0); //0
-	if (av[2][0] == '\0' || !av[1][0])
-		return (0); //0
+		return (127);
+	if (!av[2][0]|| !av[1][0])
+		return (1);
 	ppx.fd0 = open(av[1], O_RDONLY);
-	ppx.fd1 = open(av[4], O_CREAT | O_RDWR | O_TRUNC, 0664);
-	if (access(av[1], F_OK) == -1)
-	{
-		av[1] = ft_strjoin(av[1], ": ");
-    ft_putstr_fd(av[1], 2);
-  	ft_putstr_fd(strerror(errno), 2);
-    ft_putstr_fd("\n", 2);
-    free(av[1]);
-    close(ppx.fd0);
-    close(ppx.fd1);
-		exit(1); //1
-	}
-	ft_checkfd_og(ppx, av);
-	pipex_og(envp, av, ppx);
+	ppx.fd1 = open(av[ac -1], O_CREAT | O_RDWR | O_TRUNC, 0664);
+	check_file(av, ppx);
+	ft_checkfd_bonus(ppx, av);
+	pipex_bonus(envp, av, ppx);
 	return (0);
 }

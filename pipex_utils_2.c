@@ -1,46 +1,13 @@
 #include "pipex.h"
 
-void	ft_close_and_exit2(t_pipex ppx, char *av3)
+void	ft_free_cmd_bonus(t_pipex ppx)
 {
-	close(ppx.fd0);
-	close(ppx.fd1);
-	close(ppx.end[0]);
-	close(ppx.end[1]);
-	ft_putstr_fd(av3, 2);
-	ft_putstr_fd(": command not found", 2);
-	ft_putstr_fd("\n", 2);
+	waitpid(-1, NULL, 0);
+	free(ppx.cmd1);
+	free(ppx.cmd2);
 }
-void	ft_close_and_exit1(t_pipex ppx, char *av2)
-{
-	close(ppx.fd0);
-	close(ppx.fd1);
-	close(ppx.end[0]);
-	close(ppx.end[1]);
-	ft_putstr_fd(av2, 2);
-	ft_putstr_fd(": command not found", 2);
-	ft_putstr_fd("\n", 2);
-}
-char	*cmd_is_ok(char **envp, char **av, int n)
-{
-	char *cmd;
-	char *cmd2;
 
-	if (n == 2)
-	{
-		cmd = ft_add_og(envp, av[2]);
-		if (cmd == NULL)
-			return (NULL);
-		return (cmd);
-	}
-	else
-	{
-		cmd2 = ft_add_og(envp, av[3]);
-		if (cmd2 == NULL)
-			return (NULL);
-		return (cmd2);
-	}
-}
-void	ft_free_str_og(char **str)
+void	ft_free_str_bonus(char **str)
 {
 	int		i;
 
@@ -51,4 +18,51 @@ void	ft_free_str_og(char **str)
 		i++;
 	}
 	free(str);
+}
+
+void	first_c_bonus(char *av, t_pipex ppx, char **envp)
+{
+	ft_close1_bonus(ppx);
+	ft_child1_bonus(envp, av, ppx);
+}
+
+void 	second_c_bonus(char *av, char **envp, int j, t_pipex ppx)
+{
+	ppx.child2 = fork();
+	if (ppx.child2 == 0)
+	{
+		if (j == (ppx.ac - 1))
+			ft_closefinal_bonus(ppx);
+		else
+			ft_close1_bonus(ppx);
+		ft_child2_bonus(envp, av, ppx);
+	}
+	else
+		ft_free_cmd_bonus(ppx);
+}
+
+void	ft_checkfd_bonus(t_pipex ppx, char **av)
+{
+	if (ppx.fd0 == -1 || access(av[1], R_OK) == -1)
+	{
+		av[1] = ft_strjoin(av[1], ": ");
+		ft_putstr_fd(av[1], 2);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		free(av[1]);
+		close(ppx.fd0);
+		close(ppx.fd1);
+		exit(0);
+	}
+	if (ppx.fd1 < 0)
+	{
+		av[4] = ft_strjoin(av[4], ": ");
+		ft_putstr_fd(av[4], 2);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		free(av[4]);
+		close(ppx.fd0);
+		close(ppx.fd1);
+		exit(1);
+	}
 }
