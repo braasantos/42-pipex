@@ -6,7 +6,7 @@
 /*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:44:49 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/24 16:15:20 by braasantos       ###   ########.fr       */
+/*   Updated: 2023/12/25 18:49:45 by braasantos       ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,23 +35,24 @@ typedef struct	spipex
 	int		ac;
 }		t_pipex;
 
-/*BONUS Functions*/
-void	pipex_bonus(char **envp, char **av, t_pipex ppx);
-char	*ft_add_bonus(char **envp, char *ag);
-char	**get_path_bonus(char **envp);
-/*BONUS Utils*/
-void	second_c_bonus(char *av, char **envp, int j, t_pipex ppx);
-void	ft_cmmd_notfound_bonus(char *av1, char *av2, t_pipex ppx);
-void	ft_child2_bonus(char **envp, char *av3, t_pipex ppx);
-void	ft_child1_bonus(char **envp ,char *av2, t_pipex ppx);
-void	first_c_bonus(char *av, t_pipex ppx, char **envp);
+/*Functions*/
+void	pipex(char **envp, char **av, t_pipex ppx);
+char	*ft_add(char **envp, char *ag);
+char	**get_path(char **envp);
+/*Utils*/
+void	second_c(char *av, char **envp, int j, t_pipex ppx);
+void	ft_cmmd_notfound(char *av1, char *av2, t_pipex ppx);
+void	ft_child2(char **envp, char *av3, t_pipex ppx);
+void	ft_child1(char **envp ,char *av2, t_pipex ppx);
+void	first_c(char *av, t_pipex ppx, char **envp);
 void	ft_close_and_exit1(t_pipex ppx, char *av2);
 void	ft_close_and_exit2(t_pipex ppx, char *av3);
-void	ft_checkfd_bonus(t_pipex ppx, char **av);
+void	ft_checkfd(t_pipex ppx, char **av);
 void	check_file(char **av, t_pipex ppx);
-void	ft_closefinal_bonus(t_pipex ppx);
-void	ft_free_cmd_bonus(t_pipex ppx);
-void	ft_free_str_bonus(char **str);
-void	ft_close1_bonus(t_pipex ppx);
-void	ft_close2_bonus(t_pipex ppx);
+void	ft_closefinal(t_pipex ppx);
+void	ft_free_cmd(t_pipex ppx);
+void	ft_free_str(char **str);
+void	ft_close1(t_pipex ppx);
+void	ft_close2(t_pipex ppx);
+
 #endif
