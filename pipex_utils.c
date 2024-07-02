@@ -1,82 +1,82 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pipex_utils.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/20 19:31:08 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/25 18:51:44 by braasantos       ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "pipex.h"
 
-void	ft_close2(t_pipex ppx)
+/// @brief			Fuction to free the command strings and wait for the child process
+/// @param ppx		The structure containing the command strings
+void	wait_child(t_pipex ppx)
 {
-	dup2(ppx.end[0], STDIN_FILENO);
-	dup2(ppx.end[1], STDOUT_FILENO);
-	close(ppx.end[1]);
+	waitpid(-1, NULL, 0);
+	free(ppx.cmd1);
+	free(ppx.cmd2);
 }
 
-void	ft_closefinal(t_pipex ppx)
+/// @brief			Function to free an array of strings
+/// @param str		The array of strings
+void	ft_free_str(char **str)
 {
-	dup2(ppx.end[0], STDIN_FILENO);
-	close(ppx.end[0]);
-	dup2(ppx.fd1, STDOUT_FILENO);
-	close(ppx.end[1]);
-}
+	int		i;
 
-void	ft_child2(char **envp, char *av3, t_pipex ppx)
-{
-	char	**args;
-
-	args = ft_split(av3, ' ');
-	if (ppx.cmd2 == NULL)
+	i = 0;
+	while (str[i])
 	{
-		ft_free_str(args);
-		free(ppx.cmd1);
-		free(ppx.cmd2);
-		ft_close_and_exit1(ppx, av3);
-		exit(2);
+		free(str[i]);
+		i++;
 	}
-	if (execve(ppx.cmd2, args, envp) == -1)
-	{
-		ft_free_str(args);
-		free(ppx.cmd2);
-		free(ppx.cmd1);
-		ft_close_and_exit2(ppx, av3);
-		exit(127);
-	}
+	free(str);
 }
 
-void	ft_close1(t_pipex ppx)
+/// @brief			Function to Handle the first command in the pipeline
+/// @param av		The command to execute
+/// @param ppx		The structure containing the data
+/// @param envp		The environment variables
+void	st_cmd(t_pipex ppx, char *av, char **envp)
 {
-	close(ppx.end[0]);
-	dup2(ppx.fd0, STDIN_FILENO);
-	dup2(ppx.end[1], STDOUT_FILENO);
-	close(ppx.end[1]);
+	first_cmd(ppx);
+	child1(ppx, envp, av);
 }
 
-void	ft_child1(char **envp, char *av2, t_pipex ppx)
+/// @brief			Function to Handle the second command in the pipeline 
+/// @param av		The command to execute
+/// @param envp		The environment variables
+/// @param j		The index of the command
+/// @param ppx		The structure containing the data
+void 	second_cmd( t_pipex ppx, char *av, char **envp, int j)
 {
-	char	**args;
-
-	args = ft_split(av2, ' ');
-	if (ppx.cmd1 == NULL)
+	ppx.child2 = fork();
+	if (ppx.child2 == 0)
 	{
-		ft_free_str(args);
-		free(ppx.cmd1);
-		free(ppx.cmd2);
-		ft_close_and_exit1(ppx, av2);
-		exit(2);
+		if (j == (ppx.ac - 1))
+			last_cmd(ppx);
+		else
+			first_cmd(ppx);
+		child2(ppx, envp, av);
 	}
-	if (execve(ppx.cmd1, args, envp) == -1)
+	else
+		wait_child(ppx);
+}
+
+/// @brief			Function to check if the file descriptor of the files are valid
+/// @param ppx		The structure containing the file descriptors
+/// @param av		Array of Arguments
+void	check_fds(t_pipex ppx, char **av)
+{
+	if (ppx.fd0 == -1 || access(av[1], R_OK) == -1)
 	{
-		ft_free_str(args);
-		free(ppx.cmd1);
-		free(ppx.cmd2);
-		ft_close_and_exit1(ppx, av2);
-		exit(2);
+		av[1] = ft_strjoin(av[1], ": ");
+		ft_putstr_fd(av[1], 2);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		close(ppx.fd0);
+		close(ppx.fd1);
+		exit(0);
+	}
+	if (ppx.fd1 < 0)
+	{
+		av[4] = ft_strjoin(av[4], ": ");
+		ft_putstr_fd(av[4], 2);
+		ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
+		close(ppx.fd0);
+		close(ppx.fd1);
+		exit(1);
 	}
 }

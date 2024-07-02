@@ -3,22 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: braasantos <braasantos@student.42.fr>      +#+  +:+       +#+        */
+/*   By: bjorge-m <bjorge-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 12:41:33 by bjorge-m          #+#    #+#             */
-/*   Updated: 2023/12/25 18:56:43 by braasantos       ###   ########.fr       */
+/*   Updated: 2024/07/02 13:27:24 by bjorge-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	**get_path(char **envp)
+/// @brief			Function to the the PATH variable
+/// @param envp		The environment variables
+/// @return			The PATH variable splitted in an array
+static char	**get_path(char **envp)
 {
 	int		i;
 	char	*str;
 	char	**newstr;
 
 	i = 0;
+	str = NULL;
 	newstr = NULL;
 	if (!envp[i])
 		return (NULL);
@@ -29,25 +33,19 @@ char	**get_path(char **envp)
 		i++;
 	}
 	if (str)
+	{
 		newstr = ft_split(str, ':');
-	free(str);
-	return (newstr);
+		return (free(str), newstr);
+	}
+	return (NULL);
 }
 
-void	ft_cmmd_notfound(char *av1, char *av2, t_pipex ppx)
-{
-	close(ppx.fd0);
-	close(ppx.fd1);
-	ft_putstr_fd(av1, 2);
-	ft_putstr_fd(": command not found\n", 2);
-	ft_putstr_fd(av2, 2);
-	ft_putstr_fd(": command not found\n", 2);
-	free(ppx.cmd1);
-	free(ppx.cmd2);
-	exit(127);
-}
 
-char	*ft_add(char **envp, char *ag)
+/// @brief			Function to add the command to the PATH to the command var
+/// @param envp		The environment variables 
+/// @param ag		The command to to check
+/// @return			The Path to the command
+static char	*ft_add(char **envp, char *ag)
 {
 	char	*cmd1;
 	char	**str;
@@ -57,9 +55,9 @@ char	*ft_add(char **envp, char *ag)
 
 	i = 0;
 	str = get_path(envp);
-	args = ft_split(ag, ' ');
-	if (!*str)
+	if (!str || !*str)
 		return (NULL);
+	args = ft_split(ag, ' ');
 	while (str[i])
 	{
 		tmp = ft_strjoin(str[i], "/");
@@ -73,10 +71,15 @@ char	*ft_add(char **envp, char *ag)
 	return (ft_free_str(args), ft_free_str(str), NULL);
 }
 
-void	pipex(char **envp, char **av, t_pipex ppx)
+/// @brief			Original function to create the pipes and child processes
+/// 				and add the commands to the variables and execute them
+/// @param envp		The environment variables
+/// @param av		Array of Arguments received
+/// @param ppx		The structure with the data
+void	pipex(t_pipex ppx, char **envp, char **av)
 {
-	int		i;
-	int		j;
+	int	i;
+	int	j;
 
 	i = 2;
 	j = 1;
@@ -85,14 +88,17 @@ void	pipex(char **envp, char **av, t_pipex ppx)
 		ppx.cmd1 = ft_add(envp, av[i]);
 		ppx.cmd2 = ft_add(envp, av[i + 1]);
 		if (!ppx.cmd1 && !ppx.cmd2)
-			ft_cmmd_notfound(av[i], av[i + 1], ppx);
+			cmd_notfound(ppx, av[i], av[i + 1]);
 		if (pipe(ppx.end) == -1)
+		{
+			free_cmd(ppx);
 			exit(EXIT_FAILURE);
+		}
 		ppx.child1 = fork();
 		if (ppx.child1 == 0)
-			first_c(av[i], ppx, envp);
+			st_cmd(ppx, av[i], envp);
 		else
-			second_c(av[i + 1], envp, j, ppx);
+			second_cmd(ppx, av[i + 1], envp, j);
 		i++;
 		j++;
 	}

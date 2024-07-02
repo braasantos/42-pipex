@@ -1,8 +1,8 @@
 NAME = pipex
 NAME_BONUS = pipex_bonus
 HEAD = main.c
-SRCS = pipex.c pipex_utils.c pipex_utils_2.c pipex_utils_3.c
-SRCS_BONUS = pipex_bonus.c
+SRCS = pipex.c pipex_execute.c pipex_utils.c pipex_files.c
+SRCS_BONUS = main_bonus.c
 HEADER = pipex.h
 LIBFTDIR = includes/LIBFT/libft.a
 PRINTFDIR = includes/PRINTF/libftprintf.a
